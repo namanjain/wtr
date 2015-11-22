@@ -102,9 +102,11 @@ public class Player implements wtr.sim.Player {
 		Point chat = players[j];
 		
 		W[chat.id] = more_wisdom; // record known wisdom
-		maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
-		System.out.println("Player "+self.id+" now talking to "+chat.id);
-		spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
+		if (i!=j){ // Not talking to myself!
+			maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
+			System.out.println("Player "+self.id+" now talking to "+chat.id);
+			spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
+		}
 
 		//Say hello!
 		for (Point p : players) {
