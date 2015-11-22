@@ -1,7 +1,9 @@
-package wtr.g0;
+package wtr.g6;
 
 import wtr.sim.Point;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Player implements wtr.sim.Player {
@@ -11,6 +13,8 @@ public class Player implements wtr.sim.Player {
 
 	// the remaining wisdom per player
 	private int[] W = null;
+    // map of all people in the room
+    Map<Integer, Person> people;
 
 	// random generator
 	private Random random = new Random();
@@ -18,12 +22,15 @@ public class Player implements wtr.sim.Player {
 	// init function called once
 	public void init(int id, int[] friend_ids, int strangers)
 	{
+        people = new HashMap<Integer, Person>();
 		self_id = id;
 		// initialize the wisdom array
 		int N = friend_ids.length + strangers + 2;
 		W = new int [N];
-		for (int i = 0 ; i != N ; ++i)
-			W[i] = i == self_id ? 0 : -1;
+		for (int i = 0 ; i != N ; ++i) {
+            W[i] = i == self_id ? 0 : -1;
+            people.put(i, new Person(i));
+        }
 		for (int friend_id : friend_ids)
 			W[friend_id] = 50;
 	}
@@ -32,6 +39,7 @@ public class Player implements wtr.sim.Player {
 	public Point play(Point[] players, int[] chat_ids,
 	                  boolean wiser, int more_wisdom)
 	{
+        updatePeople(players, chat_ids);
 		// find where you are and who you chat with
 		int i = 0, j = 0;
 		while (players[i].id != self_id) i++;
@@ -61,4 +69,11 @@ public class Player implements wtr.sim.Player {
 		double dy = 6 * Math.sin(dir);
 		return new Point(dx, dy, self_id);
 	}
+
+    private void updatePeople(Point[] players, int[] chat_ids) {
+        for(int i = 0; i < players.length; i++) {
+            people.get(i).setNewPosition(players[i]);
+        }
+        // need to update their action, need to understand what chat_ids store
+    }
 }
