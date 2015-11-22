@@ -72,8 +72,18 @@ public class Player implements wtr.sim.Player {
 
     private void updatePeople(Point[] players, int[] chat_ids) {
         for(int i = 0; i < players.length; i++) {
-            people.get(i).setNewPosition(players[i]);
+            int id = players[i].id;
+            Person person = people.get(id);
+            person.setNewPosition(players[id]);
+            if(distance(person.prev_position, person.cur_position) != 0) {
+                person.setNewStatus(Status.moving);
+            } else {
+                // figure out if they are talking, need to understand what chat_ids store
+            }
         }
-        // need to update their action, need to understand what chat_ids store
+    }
+
+    private double distance(Point p1, Point p2) {
+        return Math.sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y));
     }
 }

@@ -8,19 +8,24 @@ import wtr.sim.Point;
 public class Person {
 
     int id;
-    Status prev_turn;
-    Status cur_turn;
+    Status prev_status;
+    Status cur_status;
     Point prev_position;
     Point cur_position;
 
     public Person(int id) {
         this.id = id;
-        prev_turn = Status.stayed;
-        cur_turn = Status.stayed;
+        prev_status = Status.stayed;
+        cur_status = Status.stayed;
     }
 
-    public void setNewPosition(Point position) {
+    public void setNewPosition(Point new_position) {
         prev_position = cur_position;
-        cur_position = position;
+        cur_position = new_position;
+    }
+
+    public void setNewStatus(Status new_status) {
+        prev_status = cur_status;
+        cur_status = new_status;
     }
 }
