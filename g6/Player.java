@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.PriorityQueue;
+import java.util.Iterator;
 
 public class Player implements wtr.sim.Player {
 
@@ -19,6 +21,11 @@ public class Player implements wtr.sim.Player {
 
 	// random generator
 	private Random random = new Random();
+
+	PriorityQueue<Person> maximum_wisdom_queue;
+	int[] spoken; //0 = not spoken, 1=hello, 2 = zero wisdom left
+
+	int count = 0;
 
 	// init function called once
 	public void init(int id, int[] friend_ids, int strangers)
@@ -34,32 +41,33 @@ public class Player implements wtr.sim.Player {
         }
 		for (int friend_id : friend_ids)
 			W[friend_id] = 50;
+
+		spoken = new int[N];
+		Arrays.fill(spoken, 0); //0 = not spoken, 1=hello, 2 = zero wisdom left
+
+		maximum_wisdom_queue = new PriorityQueue<Person>(new WisdomComparator());
 	}
 
-	// play function
+
+/*
+	// old play function
 	public Point play(Point[] players, int[] chat_ids,
 	                  boolean wiser, int more_wisdom)
 	{
-//        System.out.println(players.length);
-//        System.out.println(chat_ids.length);
-//        System.out.println(Arrays.toString(chat_ids));
-//        for(int i = 0;i  < players.length; i++) {
-//            if(players[i].id != chat_ids[i]) {
-//                System.out.println("Not Same!!");
-//            }
-//        }
+
         updatePeople(players, chat_ids);
 		// find where you are and who you chat with
 		int i = 0, j = 0;
-		while (players[i].id != self_id) i++;
-		while (players[j].id != chat_ids[i]) j++;
+		while (players[i].id != self_id) i++; // Find myself in the players array.
+		while (players[j].id != chat_ids[i]) j++; // Find my chat-buddy (who I'm currently talking to)
 		Point self = players[i];
 		Point chat = players[j];
 		// record known wisdom
 		W[chat.id] = more_wisdom;
+		System.out.println("Player :: "+self.id+" talking to ::"+chat.id);
 		// attempt to continue chatting if there is more wisdom
 		if (wiser) return new Point(0.0, 0.0, chat.id);
-		// try to initiate chat if previously not chatting
+		// try to initiate chat if previous turn I not chatting not chatting with anyone
 		if (i == j)
 			for (Point p : players) {
 				// skip if no more wisdom to gain
@@ -78,6 +86,51 @@ public class Player implements wtr.sim.Player {
 		double dy = 6 * Math.sin(dir);
 		return new Point(dx, dy, self_id);
 	}
+*/
+
+	// play function
+	public Point play(Point[] players, int[] chat_ids,
+	                  boolean wiser, int more_wisdom)
+	{
+
+        updatePeople(players, chat_ids);
+		// find where you are and who you chat with
+		int i = 0, j = 0;
+		while (players[i].id != self_id) i++; // Find myself in the players array.
+		while (players[j].id != chat_ids[i]) j++; // Find my chat-buddy (who I'm currently talking to)
+		Point self = players[i];
+		Point chat = players[j];
+		
+		W[chat.id] = more_wisdom; // record known wisdom
+		maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
+		System.out.println("Player "+self.id+" now talking to "+chat.id);
+		spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
+
+		//Say hello!
+		for (Point p : players) {
+			// Skip if you've already said hello!
+			if (spoken[p.id] != 0) 
+			{
+				continue;
+			}
+
+			double distance = Utils.distance(self, p);
+			// Say hello if in range & not spoken to earlier!
+			if (distance >= 0.5 && distance <= 2.0)
+			{	
+				System.out.println(self.id + " trying to saying hello to "+p.id);
+				return new Point(0.0, 0.0, p.id);
+			}
+
+		/* TO DO: if player no longer in range, then pop out player from queue?*/
+		}
+		// return a random move
+		System.out.println("Random move!");
+		double dir = random.nextDouble() * 2 * Math.PI;
+		double dx = 6 * Math.cos(dir);
+		double dy = 6 * Math.sin(dir);
+		return new Point(dx, dy, self_id);
+	}
 
     private void updatePeople(Point[] players, int[] chat_ids) {
         for (int i = 0; i < players.length; i++) {
@@ -86,7 +139,7 @@ public class Player implements wtr.sim.Player {
             Person person = people.get(id);
             person.setNewPosition(player);
             // if position of the person change, that person is moving
-            if (distance(person.prev_position, person.cur_position) != 0) {
+            if (Utils.distance(person.prev_position, person.cur_position) != 0) {
                 person.setNewStatus(Status.moving);
             } else {
                 // if not talking to himself, then talking to someone, otherwise just stayed there
@@ -99,10 +152,16 @@ public class Player implements wtr.sim.Player {
         }
     }
 
-    private double distance(Point p1, Point p2) {
-        if(p1 == null || p2 == null) {
-            return 0;
-        }
-        return Math.sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y));
+
+    public void debug_queue(PriorityQueue<Person> maximum_wisdom_queue)
+    {
+    	if (count++ == 100)
+		{	System.out.println("----------------->"+count);
+			while(!maximum_wisdom_queue.isEmpty()){
+				Person p = maximum_wisdom_queue.poll();
+				System.out.println(p.id+" | "+p.wisdom);}
+			System.out.println("----------------->"+count);
+		}
     }
+
 }

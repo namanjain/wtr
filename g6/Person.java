@@ -14,10 +14,20 @@ public class Person {
     Point prev_position;
     Point cur_position;
 
+    //wisdom
+    int wisdom;
+
     public Person(int id) {
         this.id = id;
         prev_status = Status.stayed;
         cur_status = Status.stayed;
+        wisdom = -1;
+    }
+
+    public Person(int id, int wisdom)
+    {
+        this.id = id;
+        this.wisdom = wisdom;
     }
 
     public void setNewPosition(Point new_position) {
