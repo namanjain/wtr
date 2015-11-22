@@ -8,6 +8,7 @@ import wtr.sim.Point;
 public class Person {
 
     int id;
+    // prev thing might not work
     Status prev_status;
     Status cur_status;
     Point prev_position;

@@ -2,6 +2,7 @@ package wtr.g6;
 
 import wtr.sim.Point;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -39,6 +40,14 @@ public class Player implements wtr.sim.Player {
 	public Point play(Point[] players, int[] chat_ids,
 	                  boolean wiser, int more_wisdom)
 	{
+//        System.out.println(players.length);
+//        System.out.println(chat_ids.length);
+//        System.out.println(Arrays.toString(chat_ids));
+//        for(int i = 0;i  < players.length; i++) {
+//            if(players[i].id != chat_ids[i]) {
+//                System.out.println("Not Same!!");
+//            }
+//        }
         updatePeople(players, chat_ids);
 		// find where you are and who you chat with
 		int i = 0, j = 0;
@@ -71,19 +80,29 @@ public class Player implements wtr.sim.Player {
 	}
 
     private void updatePeople(Point[] players, int[] chat_ids) {
-        for(int i = 0; i < players.length; i++) {
-            int id = players[i].id;
+        for (int i = 0; i < players.length; i++) {
+            Point player = players[i];
+            int id = player.id;
             Person person = people.get(id);
-            person.setNewPosition(players[id]);
-            if(distance(person.prev_position, person.cur_position) != 0) {
+            person.setNewPosition(player);
+            // if position of the person change, that person is moving
+            if (distance(person.prev_position, person.cur_position) != 0) {
                 person.setNewStatus(Status.moving);
             } else {
-                // figure out if they are talking, need to understand what chat_ids store
+                // if not talking to himself, then talking to someone, otherwise just stayed there
+                if(player.id != chat_ids[i]) {
+                    person.setNewStatus(Status.talking);
+                } else {
+                    person.setNewStatus(Status.stayed);
+                }
             }
         }
     }
 
     private double distance(Point p1, Point p2) {
+        if(p1 == null || p2 == null) {
+            return 0;
+        }
         return Math.sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y));
     }
 }
