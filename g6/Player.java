@@ -28,6 +28,7 @@ public class Player implements wtr.sim.Player {
 	int[] spoken; //0 = not spoken, 1=hello, 2 = zero wisdom left
 
 	int count = 0;
+
 	private boolean exhaust = false;
 
 	// init function called once
@@ -56,6 +57,7 @@ public class Player implements wtr.sim.Player {
 	                  boolean wiser, int more_wisdom)
 	{
 
+		//System.out.println("queue size: " + maximum_wisdom_queue.size());
         updatePeople(players, chat_ids);
 		// find where you are and who you chat with
 		int i = 0, j = 0;
@@ -65,16 +67,46 @@ public class Player implements wtr.sim.Player {
 		Point chat = players[j];
 		
 		W[chat.id] = more_wisdom; // record known wisdom
+
+		//boolean hasPerson = false;		
+		for( Person ps : maximum_wisdom_queue)
+		{
+			if(ps.id == chat.id)
+			{
+				//hasPerson = true;
+				Person tmp = new Person(ps.id, ps.wisdom);
+				maximum_wisdom_queue.remove(tmp);
+				break;
+				//System.out.println("maximum_wisdom_queue.remove(tmp): "+ );
+			}
+		}
+		
+//		Person tmp = new Person(chat.id, more_wisdom);
+//		boolean hasPerson = maximum_wisdom_queue.remove(tmp);
+		
+		
+//		System.out.println("---------------------------------------");
+//		for( Person ps : maximum_wisdom_queue)
+//		{
+//			System.out.println("ps " + ps.id + ", w: "+ps.wisdom);
+//		}
+		
+		
 		maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
 		// System.out.println("Player "+self.id+" now talking to "+chat.id);
 		spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
 		if(exhaust)
 		{
 			if(wiser && chat_ids[j] == self.id)
+			{
+				System.out.println("I, " + self.id + ", am talking to "+chat_ids[j]);
 				return new Point(0,0,chat.id);
+			}
+				
 			else {
 				exhaust = false;
 				// maximum_wisdom_queue.clear();}
+			}
 		}
 
 		//Say hello!
