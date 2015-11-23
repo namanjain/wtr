@@ -124,11 +124,14 @@ public class Player implements wtr.sim.Player {
 		if(!exhaust){
 		for (Point p : players) {
 			// Skip if you've already said hello!
-			if (spoken[p.id] != 0) 
+			int idx = 0;
+			while (idx<chat_ids.length && chat_ids[idx] != p.id ) idx++;
+			if (spoken[p.id] != 0 || idx != self.id || idx != p.id) 
 			{
 				continue;
 			}
 
+			
 			
 			// Say hello if in range & not spoken to earlier!
 			if(inTalkRange(self, p))
