@@ -39,4 +39,13 @@ public class Person {
         prev_status = cur_status;
         cur_status = new_status;
     }
+    
+    @Override
+    public boolean equals(Object o){
+      if(o instanceof Person){
+    	  Person c = (Person)o;
+        return id == c.id && wisdom == c.wisdom;
+      }
+      return false;
+    }
 }
