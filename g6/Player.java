@@ -9,6 +9,8 @@ import java.util.Random;
 import java.util.PriorityQueue;
 import java.util.Iterator;
 
+
+
 public class Player implements wtr.sim.Player {
 
 	// your own id
@@ -102,11 +104,12 @@ public class Player implements wtr.sim.Player {
 		Point chat = players[j];
 		
 		W[chat.id] = more_wisdom; // record known wisdom
-		if (i!=j){ // Not talking to myself!
-			maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
-			System.out.println("Player "+self.id+" now talking to "+chat.id);
-			spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
-		}
+		maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
+		System.out.println("--------------------------------");
+		System.out.println("adding person " + chat.id);
+		System.out.println("--------------------------------");
+		System.out.println("Player "+self.id+" now talking to "+chat.id);
+		spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
 
 		//Say hello!
 		for (Point p : players) {
@@ -116,22 +119,90 @@ public class Player implements wtr.sim.Player {
 				continue;
 			}
 
-			double distance = Utils.distance(self, p);
+			
 			// Say hello if in range & not spoken to earlier!
-			if (distance >= 0.5 && distance <= 2.0)
+			if(inTalkRange(self, p))
 			{	
 				System.out.println(self.id + " trying to saying hello to "+p.id);
+				//maximum_wisdom_queue.add(new Person(p.id, more_wisdom));
 				return new Point(0.0, 0.0, p.id);
 			}
 
 		/* TO DO: if player no longer in range, then pop out player from queue?*/
 		}
+		
+		
+		/*
+		Person p = maximum_wisdom_queue.peek();
+		System.out.println("--------------------------------");
+		System.out.println("p.id: " + p.id);
+		System.out.println("chat_ids: ");
+		int k=0;
+		for(; k<chat_ids.length; k++) 
+		{
+			if(chat_ids[k] == p.id) break;
+			System.out.println(chat_ids[k]);
+		}
+		System.out.println("--------------------------------");
+		if(k >= chat_ids.length) System.exit(-1);
+		*/
+		
+		// exhaust the person with the max wisdom		
+		Person[] person_by_w = new Person[maximum_wisdom_queue.size()];
+		int pi = 0;
+		for(Person ps : maximum_wisdom_queue)
+		{
+			person_by_w[pi++] = ps;
+		}
+		Arrays.sort(person_by_w, maximum_wisdom_queue.comparator());
+		int k=0;
+		for(; k<person_by_w.length; k++)
+		{
+			//System.out.println("---aaaaaaaaaaaa-------aaaaaaaaaaaaaaaaaa----------------------");
+			int idx = 0;
+			// find the actual player with the max wisdom
+			while (idx<players.length && players[idx].id != person_by_w[k].id ) idx++;
+			// if we can't see the max wisdom person any more or he is out of talking range then pick up the next...
+			if(idx >= players.length || !inTalkRange(self, players[idx]))
+				continue;
+			//System.out.println("---aaaaaaaaaaaa-------aaaaaaaaaaaaaaaaaa----------------------");
+			// else find out who is the max person talking to
+			int idx2 = 0;
+			while (idx2<chat_ids.length && chat_ids[idx2] != person_by_w[k].id ) idx2++;
+			// if he is talking to some one else, then skip
+			//System.out.println("idx2: " + idx2 + ", chat_ids.length: "+chat_ids.length+", person_by_w[k].id"+person_by_w[k].id);
+			if(idx2 == self.id || idx2 == person_by_w[k].id)
+			{
+				System.out.println("I, " + self.id + ", am talking to "+person_by_w[k].id);
+				System.exit(-1);
+				return new Point(0.0, 0.0, person_by_w[k].id);
+			}
+		}
+		
+		
+		
+
+		///// else: move to some where else //////
+		
+		
+		
+		
 		// return a random move
 		System.out.println("Random move!");
 		double dir = random.nextDouble() * 2 * Math.PI;
 		double dx = 6 * Math.cos(dir);
 		double dy = 6 * Math.sin(dir);
 		return new Point(dx, dy, self_id);
+	}
+	
+	
+	
+	
+	private boolean inTalkRange(Point self, Point p)
+	{
+		double distance = Utils.distance(self, p);
+		if (distance >= 0.5 && distance <= 2.0) return true;
+		return false;
 	}
 
     private void updatePeople(Point[] players, int[] chat_ids) {
