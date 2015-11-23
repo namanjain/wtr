@@ -28,6 +28,7 @@ public class Player implements wtr.sim.Player {
 	int[] spoken; //0 = not spoken, 1=hello, 2 = zero wisdom left
 
 	int count = 0;
+	private boolean exhaust = false;
 
 	// init function called once
 	public void init(int id, int[] friend_ids, int strangers)
@@ -105,13 +106,22 @@ public class Player implements wtr.sim.Player {
 		
 		W[chat.id] = more_wisdom; // record known wisdom
 		maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
-		System.out.println("--------------------------------");
-		System.out.println("adding person " + chat.id);
-		System.out.println("--------------------------------");
+//		System.out.println("--------------------------------");
+//		System.out.println("adding person " + chat.id);
+//		System.out.println("--------------------------------");
 		System.out.println("Player "+self.id+" now talking to "+chat.id);
 		spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
+		if(exhaust)
+		{
+//			System.out.println("---------------EXHAUST-----------------");
+//			System.exit(-1);
+			if(wiser && chat.id == self.id)
+				return new Point(0,0,chat.id);
+			else exhaust = false;
+		}
 
 		//Say hello!
+		if(!exhaust){
 		for (Point p : players) {
 			// Skip if you've already said hello!
 			if (spoken[p.id] != 0) 
@@ -130,22 +140,8 @@ public class Player implements wtr.sim.Player {
 
 		/* TO DO: if player no longer in range, then pop out player from queue?*/
 		}
-		
-		
-		/*
-		Person p = maximum_wisdom_queue.peek();
-		System.out.println("--------------------------------");
-		System.out.println("p.id: " + p.id);
-		System.out.println("chat_ids: ");
-		int k=0;
-		for(; k<chat_ids.length; k++) 
-		{
-			if(chat_ids[k] == p.id) break;
-			System.out.println(chat_ids[k]);
 		}
-		System.out.println("--------------------------------");
-		if(k >= chat_ids.length) System.exit(-1);
-		*/
+
 		
 		// exhaust the person with the max wisdom		
 		Person[] person_by_w = new Person[maximum_wisdom_queue.size()];
@@ -175,6 +171,7 @@ public class Player implements wtr.sim.Player {
 			{
 				System.out.println("I, " + self.id + ", am talking to "+person_by_w[k].id);
 				//System.exit(-1);
+				exhaust = true;
 				return new Point(0.0, 0.0, person_by_w[k].id);
 			}
 		}
