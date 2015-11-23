@@ -183,19 +183,39 @@ public class Player implements wtr.sim.Player {
 		
 
 		///// else: move to some where else //////
-		
+
+        return moveToANewLocation(players);
 		
 		
 		
 		// return a random move
-		System.out.println("Random move!");
-		double dir = random.nextDouble() * 2 * Math.PI;
-		double dx = 6 * Math.cos(dir);
-		double dy = 6 * Math.sin(dir);
-		return new Point(dx, dy, self_id);
+//		System.out.println("Random move!");
+//		double dir = random.nextDouble() * 2 * Math.PI;
+//		double dx = 6 * Math.cos(dir);
+//		double dy = 6 * Math.sin(dir);
+//		return new Point(dx, dy, self_id);
 	}
 	
-	
+	private Point moveToANewLocation(Point[] players) {
+        Point self = people.get(self_id).cur_position;
+        for(int i = 0; i < players.length; i++) {
+            Point player = players[i];
+            double distance = Utils.distance(self, player);
+            // if the person is not in talking range and has wisdom to offer, move to that person's location
+            if(distance > 2 && distance <= 6 && W[i] != 0) {
+                double theta = Math.atan2(player.y - self.y, player.x - self.x);
+                double new_distance = distance - 0.5;
+                double dx = new_distance * Math.sin(theta);
+                double dy = new_distance * Math.cos(theta);
+                return new Point(dx, dy, self.id);
+            }
+        }
+        // if no one found, move to a random position
+        double dir = random.nextDouble() * 2 * Math.PI;
+        double dx = 6 * Math.cos(dir);
+        double dy = 6 * Math.sin(dir);
+        return new Point(dx, dy, self_id);
+    }
 	
 	
 	private boolean inTalkRange(Point self, Point p)
