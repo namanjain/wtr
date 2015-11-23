@@ -174,7 +174,7 @@ public class Player implements wtr.sim.Player {
 			if(idx2 == self.id || idx2 == person_by_w[k].id)
 			{
 				System.out.println("I, " + self.id + ", am talking to "+person_by_w[k].id);
-				System.exit(-1);
+				//System.exit(-1);
 				return new Point(0.0, 0.0, person_by_w[k].id);
 			}
 		}
