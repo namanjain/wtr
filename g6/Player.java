@@ -205,8 +205,14 @@ public class Player implements wtr.sim.Player {
             if(distance > 2 && distance <= 6 && W[i] != 0) {
                 double theta = Math.atan2(player.y - self.y, player.x - self.x);
                 double new_distance = distance - 0.5;
-                double dx = new_distance * Math.sin(theta);
-                double dy = new_distance * Math.cos(theta);
+                double dx = Math.abs(new_distance * Math.sin(theta));
+                double dy = Math.abs(new_distance * Math.cos(theta));
+                if(player.x - self.x < 0) {
+                    dx = -dx;
+                }
+                if(player.y - self.y < 0) {
+                    dy = -dy;
+                }
                 return new Point(dx, dy, self.id);
             }
         }
