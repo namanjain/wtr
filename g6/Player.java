@@ -51,46 +51,6 @@ public class Player implements wtr.sim.Player {
 		maximum_wisdom_queue = new PriorityQueue<Person>(new WisdomComparator());
 	}
 
-
-/*
-	// old play function
-	public Point play(Point[] players, int[] chat_ids,
-	                  boolean wiser, int more_wisdom)
-	{
-
-        updatePeople(players, chat_ids);
-		// find where you are and who you chat with
-		int i = 0, j = 0;
-		while (players[i].id != self_id) i++; // Find myself in the players array.
-		while (players[j].id != chat_ids[i]) j++; // Find my chat-buddy (who I'm currently talking to)
-		Point self = players[i];
-		Point chat = players[j];
-		// record known wisdom
-		W[chat.id] = more_wisdom;
-		System.out.println("Player :: "+self.id+" talking to ::"+chat.id);
-		// attempt to continue chatting if there is more wisdom
-		if (wiser) return new Point(0.0, 0.0, chat.id);
-		// try to initiate chat if previous turn I not chatting not chatting with anyone
-		if (i == j)
-			for (Point p : players) {
-				// skip if no more wisdom to gain
-				if (W[p.id] == 0) continue;
-				// compute squared distance
-				double dx = self.x - p.x;
-				double dy = self.y - p.y;
-				double dd = dx * dx + dy * dy;
-				// start chatting if in range
-				if (dd >= 0.25 && dd <= 4.0)
-					return new Point(0.0, 0.0, p.id);
-			}
-		// return a random move
-		double dir = random.nextDouble() * 2 * Math.PI;
-		double dx = 6 * Math.cos(dir);
-		double dy = 6 * Math.sin(dir);
-		return new Point(dx, dy, self_id);
-	}
-*/
-
 	// play function
 	public Point play(Point[] players, int[] chat_ids,
 	                  boolean wiser, int more_wisdom)
@@ -106,18 +66,15 @@ public class Player implements wtr.sim.Player {
 		
 		W[chat.id] = more_wisdom; // record known wisdom
 		maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
-//		System.out.println("--------------------------------");
-//		System.out.println("adding person " + chat.id);
-//		System.out.println("--------------------------------");
-		System.out.println("Player "+self.id+" now talking to "+chat.id);
+		// System.out.println("Player "+self.id+" now talking to "+chat.id);
 		spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
 		if(exhaust)
 		{
-//			System.out.println("---------------EXHAUST-----------------");
-//			System.exit(-1);
-			if(wiser && chat.id == self.id)
+			if(wiser && chat_ids[j] == self.id)
 				return new Point(0,0,chat.id);
-			else exhaust = false;
+			else {
+				exhaust = false;
+				// maximum_wisdom_queue.clear();}
 		}
 
 		//Say hello!
@@ -131,17 +88,12 @@ public class Player implements wtr.sim.Player {
 				continue;
 			}
 
-			
-			
 			// Say hello if in range & not spoken to earlier!
 			if(inTalkRange(self, p))
 			{	
 				System.out.println(self.id + " trying to saying hello to "+p.id);
-				//maximum_wisdom_queue.add(new Person(p.id, more_wisdom));
 				return new Point(0.0, 0.0, p.id);
 			}
-
-		/* TO DO: if player no longer in range, then pop out player from queue?*/
 		}
 		}
 
@@ -157,14 +109,12 @@ public class Player implements wtr.sim.Player {
 		int k=0;
 		for(; k<person_by_w.length; k++)
 		{
-			//System.out.println("---aaaaaaaaaaaa-------aaaaaaaaaaaaaaaaaa----------------------");
 			int idx = 0;
 			// find the actual player with the max wisdom
 			while (idx<players.length && players[idx].id != person_by_w[k].id ) idx++;
 			// if we can't see the max wisdom person any more or he is out of talking range then pick up the next...
 			if(idx >= players.length || !inTalkRange(self, players[idx]))
 				continue;
-			//System.out.println("---aaaaaaaaaaaa-------aaaaaaaaaaaaaaaaaa----------------------");
 			// else find out who is the max person talking to
 			int idx2 = 0;
 			while (idx2<chat_ids.length && chat_ids[idx2] != person_by_w[k].id ) idx2++;
@@ -173,27 +123,11 @@ public class Player implements wtr.sim.Player {
 			if(idx2 == self.id || idx2 == person_by_w[k].id)
 			{
 				System.out.println("I, " + self.id + ", am talking to "+person_by_w[k].id);
-				//System.exit(-1);
 				exhaust = true;
 				return new Point(0.0, 0.0, person_by_w[k].id);
 			}
 		}
-		
-		
-		
-
-		///// else: move to some where else //////
-
         return moveToANewLocation(players);
-		
-		
-		
-		// return a random move
-//		System.out.println("Random move!");
-//		double dir = random.nextDouble() * 2 * Math.PI;
-//		double dx = 6 * Math.cos(dir);
-//		double dy = 6 * Math.sin(dir);
-//		return new Point(dx, dy, self_id);
 	}
 	
 	private Point moveToANewLocation(Point[] players) {
