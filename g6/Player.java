@@ -66,8 +66,11 @@ public class Player implements wtr.sim.Player {
 		Point self = players[i];
 		Point chat = players[j];
 		
+
+		
 		W[chat.id] = more_wisdom; // record known wisdom
 
+		if(i != j){
 		//boolean hasPerson = false;		
 		for( Person ps : maximum_wisdom_queue)
 		{
@@ -77,29 +80,19 @@ public class Player implements wtr.sim.Player {
 				Person tmp = new Person(ps.id, ps.wisdom);
 				maximum_wisdom_queue.remove(tmp);
 				break;
-				//System.out.println("maximum_wisdom_queue.remove(tmp): "+ );
 			}
 		}
 		
-//		Person tmp = new Person(chat.id, more_wisdom);
-//		boolean hasPerson = maximum_wisdom_queue.remove(tmp);
 		
-		
-//		System.out.println("---------------------------------------");
-//		for( Person ps : maximum_wisdom_queue)
-//		{
-//			System.out.println("ps " + ps.id + ", w: "+ps.wisdom);
-//		}
-		
-		
-		maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
+		if(self.id != chat.id) maximum_wisdom_queue.add(new Person(chat.id, more_wisdom));
+		}
 		// System.out.println("Player "+self.id+" now talking to "+chat.id);
 		spoken[chat.id] = wiser==true? 1:2; //wiser = more wisdom left
 		if(exhaust)
 		{
-			if(wiser && chat_ids[j] == self.id)
+			if((wiser && chat_ids[j] == self.id))// || (inTalkRange(players[j],self)))
 			{
-				System.out.println("I, " + self.id + ", am talking to "+chat_ids[j]);
+				System.out.println("EXHAUST: I, " + self.id + ", am talking to "+chat.id);
 				return new Point(0,0,chat.id);
 			}
 				
@@ -112,14 +105,14 @@ public class Player implements wtr.sim.Player {
 		//Say hello!
 		if(!exhaust){
 		for (Point p : players) {
+			
 			// Skip if you've already said hello!
 			int idx = 0;
 			while (idx<chat_ids.length && chat_ids[idx] != p.id ) idx++;
-			if (spoken[p.id] != 0 || idx != self.id || idx != p.id) 
+			if (spoken[p.id] != 0 || idx != p.id) 
 			{
 				continue;
 			}
-
 			// Say hello if in range & not spoken to earlier!
 			if(inTalkRange(self, p))
 			{	
@@ -159,6 +152,7 @@ public class Player implements wtr.sim.Player {
 				return new Point(0.0, 0.0, person_by_w[k].id);
 			}
 		}
+		//return new Point(0,0,self.id);
         return moveToANewLocation(players);
 	}
 	
