@@ -47,7 +47,7 @@ public class WisdomComparator implements Comparator<Person>{
 
     private double cost(double distance, int wisdom, boolean free) {
         try {
-            double scale = free ? 2 : 1;
+            double scale = free ? 100 : 1;
             return (scale * wisdom) / distance;
         } catch (Exception e) {
             return 0;
