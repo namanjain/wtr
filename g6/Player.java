@@ -31,6 +31,7 @@ public class Player implements wtr.sim.Player {
     Map<Integer, Turn> turns;
 
 	private boolean exhaust = false;
+    private int last_move_turn = 0;
 
 	// init function called once
 	public void init(int id, int[] friend_ids, int strangers)
@@ -107,6 +108,12 @@ public class Player implements wtr.sim.Player {
                 }
             }
 
+            // if did not gain any wisdom in last 5 turns where we spoke, move to a random location
+            if(!lastKTurnsSuccessfulSinceLastMoved(5)) {
+                response = moveToARandomLocation();
+                return response;
+            }
+
 //            if (talk_to_id != -1) {
 //                Point result = new Point(0, 0, talk_to_id);
 //                talk_to_id = -1;
@@ -180,27 +187,93 @@ public class Player implements wtr.sim.Player {
             return response;
         } finally {
             turns.get(tick).chat_id_tried = response.id;
+            if(response.x != 0 || response.y != 0) {
+                last_move_turn = tick;
+            }
         }
     }
 
+//    private boolean lastKSpokeTurnsSuccessful(int k) {
+//        int t = 0;
+//        for(int i = 1; t <= k && tick - i >= 0; i++) {
+//            if(!turns.containsKey(tick - i)) {
+//                return true;
+//            }
+//            Turn turn = turns.get(tick - i);
+//            if(turn.spoke) {
+//                t++;
+//                if(turn.wiser) {
+//                    return true;
+//                }
+//            }
+//        }
+//        if(t <= k) {
+//            return true;
+//        }
+//        return false;
+//    }
+
+    private boolean lastKTurnsSuccessfulSinceLastMoved(int k) {
+        int t = 0;
+        for(int i = 1; t <= k && tick - i >= last_move_turn; i++) {
+            if(!turns.containsKey(tick - i)) {
+                return true;
+            }
+            Turn turn = turns.get(tick - i);
+            if(turn.spoke) {
+                t++;
+                if(turn.wiser) {
+                    return true;
+                }
+            }
+        }
+        if(t <= k) {
+            return true;
+        }
+        return false;
+    }
+
     private boolean lastKTurnsSuccessful(int k, int chat_id_tried) {
-        for(int i = 1; i <= k; i++) {
+        int t = 0;
+        for(int i = 1; t <= k && tick - i >= 0 && i <= 10; i++) {
             if(!turns.containsKey(tick - i)) {
                 return true;
             }
             Turn turn = turns.get(tick - i);
             if(turn.chat_id_tried != chat_id_tried) {
-                return true;
+                continue;
             }
-            if(turn.spoke && turn.wiser) {
-                return true;
+            if(turn.spoke) {
+                t++;
+                if(turn.wiser) {
+                    return true;
+                }
             }
+        }
+        if(t <= k) {
+            return true;
         }
         return false;
     }
 
+//    private boolean lastKTurnsSuccessful(int k, int chat_id_tried) {
+//        for(int i = 1; i <= k; i++) {
+//            if(!turns.containsKey(tick - i)) {
+//                return true;
+//            }
+//            Turn turn = turns.get(tick - i);
+//            if(turn.chat_id_tried != chat_id_tried) {
+//                return true;
+//            }
+//            if(turn.spoke && turn.wiser) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
     //
-	private Point moveToANewLocation(Point[] players) {
+    private Point moveToANewLocation(Point[] players) {
         Point self = people.get(self_id).cur_position;
         for(Point player: players) {
             double distance = Utils.distance(self, player);
@@ -210,9 +283,23 @@ public class Player implements wtr.sim.Player {
             }
         }
         // if no one found, move to a random position
-        double dir = random.nextDouble() * 2 * Math.PI;
-        double dx = 6 * Math.cos(dir);
-        double dy = 6 * Math.sin(dir);
+        return moveToARandomLocation();
+    }
+
+    //
+    private Point moveToARandomLocation() {
+        Point self = people.get(self_id).cur_position;
+        double dx = 0;
+        double dy = 0;
+        double x = -1;
+        double y = -1;
+        while(x < 0 || x > 20 || y < 0 || y > 20) {
+            double dir = random.nextDouble() * 2 * Math.PI;
+            dx = 6 * Math.cos(dir);
+            dy = 6 * Math.sin(dir);
+            x = self.x + dx;
+            y = self.y + dy;
+        }
         return new Point(dx, dy, self_id);
     }
 
