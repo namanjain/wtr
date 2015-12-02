@@ -40,7 +40,9 @@ public class Player implements wtr.sim.Player {
 		// initialize the wisdom array
 		int N = friend_ids.length + strangers + 2;
 		for (int i = 0 ; i != N ; ++i) {
-            int wisdom = i == self_id ? 0 : -1;
+            //int wisdom = i == self_id ? 0 : -1;
+			int stranger_wisdom = (int) (5.5*strangers + 200)/(strangers+1);
+			int wisdom = i == self_id ? 0 : stranger_wisdom;
             Person person = new Person(i, wisdom);
             people.put(i, person);
         }
