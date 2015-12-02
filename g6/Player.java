@@ -252,7 +252,8 @@ public class Player implements wtr.sim.Player {
             // - is not in talking range
             // - has wisdom to offer
             // - there is no other person too close to that person
-            if(distance > 2 && distance <= 6 && people.get(player.id).wisdom != 0 && Utils.closestPersonDist(players, people.get(player.id), people.get(self.id)) >= 0.5) {
+            boolean free = people.get(player.id).chat_id == player.id ? true : false;
+            if(distance > 2 && distance <= 6 && people.get(player.id).wisdom != 0 && free && Utils.closestPersonDist(players, people.get(player.id), people.get(self.id)) >= 0.5) {
                 queue.offer(people.get(player.id));
             }
         }
