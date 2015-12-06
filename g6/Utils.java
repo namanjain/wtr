@@ -24,10 +24,11 @@ public class Utils{
     }
     public static double closestPersonDist(Point[] players, Person chat, Person self)
     {
-    	double dmin = Double.MIN_VALUE;
+    	double dmin = Double.MAX_VALUE;
     	for(Point p : players)
     	{
     		if(p.id == self.id) continue; 
+            if (p.id == chat.id) continue;
     		double d = distance(p, chat);
     		dmin = dmin < d ? dmin : d;
     	}

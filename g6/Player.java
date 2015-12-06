@@ -138,7 +138,7 @@ public class Player implements wtr.sim.Player {
             		double dmin = Utils.closestPersonDist(players, people.get(chat.id), people.get(self.id));
                 	if(dmin < Utils.distance(self, chat))
                 	{
-                		if(dmin < 0.5)
+                		if(dmin <= 0.52)
                 		{
                 			response = moveToProperPerson(players);
                 			return response;
@@ -255,7 +255,9 @@ public class Player implements wtr.sim.Player {
             // - has wisdom to offer
             // - there is no other person too close to that person
             boolean free = people.get(player.id).chat_id == player.id ? true : false;
-            if(distance > 2 && distance <= 6 && people.get(player.id).wisdom != 0 && free && Utils.closestPersonDist(players, people.get(player.id), people.get(self.id)) >= 0.5) {
+            if(distance > 2 && distance <= 6 && people.get(player.id).wisdom != 0 && free 
+                && Utils.closestPersonDist(players, people.get(player.id), people.get(self.id)) > 0.52) 
+            {
                 queue.offer(people.get(player.id));
             }
         }
@@ -288,7 +290,7 @@ public class Player implements wtr.sim.Player {
     private Point moveCloserToPerson(Point self, Point player) {
         double theta = Math.atan2(player.y - self.y, player.x - self.x);
         double distance = Utils.distance(self, player);
-        double new_distance = distance - 0.5;
+        double new_distance = distance - 0.52;
         double dx = Math.abs(new_distance * Math.sin(theta));
         double dy = Math.abs(new_distance * Math.cos(theta));
         if(player.x - self.x < 0) {
