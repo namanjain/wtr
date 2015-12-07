@@ -103,59 +103,60 @@ public class Player implements wtr.sim.Player {
             }
 
             // if did not gain any wisdom in last 5 turns where we spoke, move to a random location
-            if(!lastKTurnsSuccessfulSinceLastMoved(5)) {
+            if(!lastKTurnsSuccessfulSinceLastMoved(3)) {
                 response = moveToARandomLocation();
                 return response;
             }
 
             if (exhaust) {
-//            	double dmin = Utils.closestPersonDist(players, people.get(chat.id), people.get(self.id));
-//            	if(dmin <= Utils.distance(self, chat))
-//            	{
-//            		if(dmin < 0.5)
-//            		{
-//            			response = moveToProperPerson(players);
-//            			return response;
-//            		}
-//            		else
-//            		{
-//            			response = moveCloserToPerson(self, chat);
-//            			return response;
-//            		}
-//            	}
-//            	else
-//            	{
-//            		if (more_wisdom > 0 && chat_ids[j] == self.id && lastKTurnsSuccessful(k_turn, chat_ids[i])) {
-//                        System.out.println("EXHAUST: I, " + self.id + ", am talking to " + chat.id);
-//                        response = new Point(0, 0, chat.id);
-//                        return response;
-//                    } else {
-//                        exhaust = false;
-//                    }
-//            	}
+            	double dmin = Utils.closestPersonDist(players, people.get(chat.id), people.get(self.id));
+            	if(dmin <= Utils.distance(self, chat))
+            	{
+            		if(dmin < 0.52)
+            		{
+            			response = moveToProperPerson(players);
+            			return response;
+            		}
+            		else
+            		{
+            			response = moveCloserToPerson(self, chat);
+            			return response;
+            		}
+            	}
+            	else
+            	{
+            		int kturn = people.get(chat.id).wisdom / 6;
+            		if (more_wisdom > 0 && lastKTurnsSuccessful(kturn, chat_ids[i])) {
+                        System.out.println("EXHAUST: I, " + self.id + ", am talking to " + chat.id);
+                        response = new Point(0, 0, chat.id);
+                        return response;
+                    } else {
+                        exhaust = false;
+                    }
+            	}
             	
-            	if (more_wisdom > 0 && chat_ids[j] == self.id && lastKTurnsSuccessful(k_turn, chat_ids[i])) {
-            		double dmin = Utils.closestPersonDist(players, people.get(chat.id), people.get(self.id));
-                	if(dmin < Utils.distance(self, chat))
-                	{
-                		if(dmin <= 0.52)
-                		{
-                			response = moveToProperPerson(players);
-                			return response;
-                		}
-                		else
-                		{
-                			response = moveCloserToPerson(self, chat);
-                			return response;
-                		}
-                	}
-                	else{
-                    response = new Point(0, 0, chat.id);
-                    return response;
-                	}
-                } else {
-                    exhaust = false;
-                }
+//            	if (more_wisdom > 0 && chat_ids[j] == self.id && lastKTurnsSuccessful(k_turn, chat_ids[i])) {
+//            		double dmin = Utils.closestPersonDist(players, people.get(chat.id), people.get(self.id));
+//                	if(dmin < Utils.distance(self, chat))
+//                	{
+//                		if(dmin <= 0.52)
+//                		{
+//                			response = moveToProperPerson(players);
+//                			return response;
+//                		}
+//                		else
+//                		{
+//                			response = moveCloserToPerson(self, chat);
+//                			return response;
+//                		}
+//                	}
+//                	else{
+//                    response = new Point(0, 0, chat.id);
+//                    return response;
+//                	}
+//                } else {
+//                    exhaust = false;
+//                }
             }
             while(!maximum_wisdom_queue.isEmpty()) {
                 Person person = maximum_wisdom_queue.poll();
