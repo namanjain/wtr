@@ -59,7 +59,8 @@ public class Player implements wtr.sim.Player {
         //comparator = new WisdomComparator(people.get(self_id));
         pureWisdomComparator = new PureWisdomComparator();
 
-        friendsFavorable = (strangers / friend_ids.length < 3) && (strangers > 300);
+        int friendsCount = friend_ids.length > 0 ? friend_ids.length : 1;
+        friendsFavorable = (strangers / friendsCount < 3) && (strangers > 300);
 	}
 
 	// play function
