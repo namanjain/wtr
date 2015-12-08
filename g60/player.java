@@ -318,8 +318,8 @@ public class Player implements wtr.sim.Player {
         double theta = Math.atan2(player.y - self.y, player.x - self.x);
         double distance = Utils.distance(self, player);
         double new_distance = distance - 0.501;
-        double dx = Math.abs(new_distance * Math.sin(theta));
-        double dy = Math.abs(new_distance * Math.cos(theta));
+        double dx = Math.abs(new_distance * Math.cos(theta));
+        double dy = Math.abs(new_distance * Math.sin(theta));
         if(player.x - self.x < 0) {
             dx = -dx;
         }
@@ -333,8 +333,8 @@ public class Player implements wtr.sim.Player {
         double theta = Math.atan2(player.cur_position.y - self.y, player.cur_position.x - self.x);
         double distance = Utils.distance(self, player);
         double new_distance = distance - 0.501;
-        double dx = Math.abs(new_distance * Math.sin(theta));
-        double dy = Math.abs(new_distance * Math.cos(theta));
+        double dx = Math.abs(new_distance * Math.cos(theta));
+        double dy = Math.abs(new_distance * Math.sin(theta));
         if(player.cur_position.x - self.x < 0) {
             dx = -dx;
         }
