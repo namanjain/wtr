@@ -31,6 +31,9 @@ public class Player implements wtr.sim.Player {
 
 	private boolean exhaust = false;
     private int last_move_turn = 0;
+    private boolean friendsFavorable;
+
+    Set<Integer> friends;
 
 	// init function called once
 	public void init(int id, int[] friend_ids, int strangers)
@@ -38,6 +41,7 @@ public class Player implements wtr.sim.Player {
         turns = new HashMap<Integer, Turn>();
         turns.put(0, new Turn(0, self_id));
         people = new HashMap<Integer, Person>();
+        friends = new HashSet<Integer>();
 		self_id = id;
 		// initialize the wisdom array
 		int N = friend_ids.length + strangers + 2;
@@ -50,9 +54,12 @@ public class Player implements wtr.sim.Player {
         }
 		for (int friend_id : friend_ids) {
             people.get(friend_id).wisdom = 50;
+            friends.add(friend_id);
         }
         //comparator = new WisdomComparator(people.get(self_id));
         pureWisdomComparator = new PureWisdomComparator();
+
+        friendsFavorable = strangers / friend_ids.length < 3;
 	}
 
 	// play function
@@ -197,6 +204,10 @@ public class Player implements wtr.sim.Player {
             Person person = maximum_wisdom_queue.poll();
             if(lastKTurnsSuccessful(k_turn, person.id)) {
                 Point response = new Point(0, 0, person.id);
+                if(!Utils.inTalkRange(person.cur_position, people.get(self_id).cur_position)) {
+                    response = moveCloserToPerson(people.get(self_id).cur_position, person.cur_position);
+                    move = true;
+                }
                 exhaust = true;
                 return response;
             }
@@ -363,14 +374,31 @@ public class Player implements wtr.sim.Player {
                 maximum_wisdom_queue.add(people.get(player.id));
             }
         }
-        if (maximum_wisdom_queue.isEmpty()){
-        for(Point player: players) {
-            Person other = people.get(player.id);
-            if(Utils.inTalkRange(self.cur_position, other.cur_position) && other.wisdom != 0 && Utils.closestToChatPlayer(players, other, self)){
-            //if(Utils.inTalkRange(self.cur_position, other.cur_position) && other.wisdom != 0) {
-                maximum_wisdom_queue.add(people.get(player.id));
+        if (maximum_wisdom_queue.isEmpty() && friendsFavorable){
+            for(Point player: players) {
+                Person other = people.get(player.id);
+                if(friends.contains(player.id) && Utils.inTalkRange(self.cur_position, other.cur_position) && other.wisdom != 0) {
+                    maximum_wisdom_queue.add(other);
+                }
             }
-        }}
+            if(maximum_wisdom_queue.isEmpty()) {
+                for(Point player: players) {
+                    Person other = people.get(player.id);
+                    if(friends.contains(other.id) && other.wisdom != 0) {
+                        maximum_wisdom_queue.add(other);
+                    }
+                }
+            }
+        }
+        if(maximum_wisdom_queue.isEmpty()) {
+            for (Point player : players) {
+                Person other = people.get(player.id);
+                if (Utils.inTalkRange(self.cur_position, other.cur_position) && other.wisdom != 0 && Utils.closestToChatPlayer(players, other, self)) {
+                    //if(Utils.inTalkRange(self.cur_position, other.cur_position) && other.wisdom != 0) {
+                    maximum_wisdom_queue.add(people.get(player.id));
+                }
+            }
+        }
         for(Integer id: people.keySet()) {
             if(visibleIds.contains(id)) {
                 continue;
