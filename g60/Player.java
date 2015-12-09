@@ -26,6 +26,7 @@ public class Player implements wtr.sim.Player {
     PureWisdomComparator pureWisdomComparator;
 
     int k_turn = 3;
+    int visiblePeopleThreshold = 50;
 
     Map<Integer, Turn> turns;
 
@@ -61,6 +62,7 @@ public class Player implements wtr.sim.Player {
 
         int friendsCount = friend_ids.length > 0 ? friend_ids.length : 1;
         friendsFavorable = (strangers / friendsCount < 3) && (strangers > 300);
+        visiblePeopleThreshold = Math.max((int) (N * 0.5), 75);
 	}
 
 	// play function
@@ -97,6 +99,11 @@ public class Player implements wtr.sim.Player {
             
             if(wiser && more_wisdom > 0) {
                 response = new Point(0, 0, chat.id);
+                return response;
+            }
+
+            if(players.length > visiblePeopleThreshold) {
+                response = moveToARandomLocation();
                 return response;
             }
 
